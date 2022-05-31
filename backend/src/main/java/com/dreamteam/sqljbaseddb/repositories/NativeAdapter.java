@@ -1,6 +1,6 @@
 package com.dreamteam.sqljbaseddb.repositories;
 
-public class Native {
+public class NativeAdapter {
     static {
         System.load("D:\\Programs\\IntelliJIDEA\\sqljbased-db\\backend\\src\\main\\resources\\libmylib.jnilib");
     }

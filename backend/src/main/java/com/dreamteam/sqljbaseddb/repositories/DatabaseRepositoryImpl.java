@@ -66,7 +66,7 @@ public class DatabaseRepositoryImpl implements DatabaseRepository {
 
     @Override
     public boolean delete(String database, Authentication auth) throws SQLException, ClassNotFoundException {
-        return Native.deleteDatabase(database, auth.getUsername(), auth.getPassword());
+        return NativeAdapter.deleteDatabase(database, auth.getUsername(), auth.getPassword());
 //        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
 //        connection.setAutoCommit(false);
 //        Savepoint savepoint = connection.setSavepoint();
