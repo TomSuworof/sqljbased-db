@@ -15,7 +15,7 @@
 
 #define BUFSIZE 64
 
-JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Native_delete
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_delete
         (JNIEnv* env,
          jclass clazz,
          jstring database,
