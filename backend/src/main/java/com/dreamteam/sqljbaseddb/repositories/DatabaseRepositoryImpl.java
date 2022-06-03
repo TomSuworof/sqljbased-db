@@ -17,7 +17,7 @@ public class DatabaseRepositoryImpl implements DatabaseRepository {
         connection.setAutoCommit(false);
         Savepoint savepoint = connection.setSavepoint();
 
-        List<String> databases = new LinkedList<>();
+        List<String> databases =  new LinkedList<>(); // NativeAdapter.findAll(auth.getUsername(), auth.getPassword());
 
         try {
             PreparedStatement statement = connection.prepareStatement("select * from get_all_databases();");

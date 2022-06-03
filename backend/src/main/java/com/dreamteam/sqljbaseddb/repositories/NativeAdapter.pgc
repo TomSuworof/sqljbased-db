@@ -16,7 +16,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     const char *usernameNtv = (*env)->GetStringUTFChars(env, username, NULL);
     const char *passwordNtv = (*env)->GetStringUTFChars(env, password, NULL);
 
-    const char *databases[10];
+    const char *databases[10] = {"humorous",
+                                 "applaud",
+                                 "curlikbnjkrnkjr",
+                                 "aware",
+                                 "bareable",
+                                 "mellow",
+                                 "courageous",
+                                 "supreme",
+                                 "animal",
+                                 "cynical"}; // some sample strings for test
     int curr_db = 0;
 
     EXEC SQL begin declare section;
@@ -36,7 +45,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
 
-    EXEC SQL open curs;
+    EXEC SQL OPEN curs; // crashes Virtual Machine
 
     while (1)
     {
@@ -48,6 +57,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
         curr_db++;
     }
 
+    EXEC SQL close curs;
+
     EXEC SQL disconnect dm_conn;
 
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
@@ -55,7 +66,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
 
     jobjectArray ret = (jobjectArray) (*env)->NewObjectArray(env, 10, (*env)->FindClass(env, "java/lang/String"), (*env)->NewStringUTF(env, ""));
 
-    for (int i = 0; i < curr_db; i++)
+    for (int i = 0; i < 10; i++)
     {
         (*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, databases[i]));
     }
