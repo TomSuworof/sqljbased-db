@@ -33,7 +33,7 @@ public class DatabasesController {
     }
 
     @PostMapping("/remove")
-    public @ResponseBody boolean removeDatabase(@RequestParam String databaseName, @RequestBody Authentication auth) throws SQLException, ClassNotFoundException {
-        return databasesService.deleteDatabase(databaseName, auth);
+    public @ResponseBody void removeDatabase(@RequestParam String databaseName, @RequestBody Authentication auth) throws SQLException, ClassNotFoundException {
+        databasesService.deleteDatabase(databaseName, auth);
     }
 }

@@ -9,7 +9,6 @@ const store = new Vuex.Store({
     actions: {
         addDatabase({ commit }, database) {
             commit('addDatabase', database);
-            localStorage.setItem('currentDatabase', database);
         },
         switchToDatabase({ commit }, databasesInfo) {
             commit('switchToDatabase', databasesInfo);

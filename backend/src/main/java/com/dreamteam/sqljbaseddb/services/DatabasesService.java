@@ -25,7 +25,7 @@ public class DatabasesService {
         databaseRepository.save(database, auth);
     }
 
-    public boolean deleteDatabase(String database, Authentication auth) throws SQLException, ClassNotFoundException {
-        return databaseRepository.delete(database, auth);
+    public void deleteDatabase(String database, Authentication auth) throws SQLException, ClassNotFoundException {
+        databaseRepository.delete(database, auth);
     }
 }

@@ -41,32 +41,34 @@ public class DatabaseRepositoryImpl implements DatabaseRepository {
 
     @Override
     public void testConnect(String database, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.isValid(1000);
+        NativeAdapter.testConnect(database, auth.getUsername(), auth.getPassword());
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.isValid(1);
     }
 
     @Override
     public void save(String database, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from create_database(?, ?, ?);");
-            statement.setString(1, database);
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-            statement.execute();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+        NativeAdapter.saveDatabase(database, auth.getUsername(), auth.getPassword());
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from create_database(?, ?, ?);");
+//            statement.setString(1, database);
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//            statement.execute();
+//            connection.commit();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
     }
 
     @Override
-    public boolean delete(String database, Authentication auth) throws SQLException, ClassNotFoundException {
-        return NativeAdapter.deleteDatabase(database, auth.getUsername(), auth.getPassword());
+    public void delete(String database, Authentication auth) throws SQLException, ClassNotFoundException {
+        NativeAdapter.deleteDatabase(database, auth.getUsername(), auth.getPassword());
 //        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
 //        connection.setAutoCommit(false);
 //        Savepoint savepoint = connection.setSavepoint();

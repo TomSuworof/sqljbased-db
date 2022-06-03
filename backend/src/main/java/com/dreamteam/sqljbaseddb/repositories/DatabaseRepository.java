@@ -12,5 +12,5 @@ public interface DatabaseRepository {
 
     void save(String database, Authentication auth) throws SQLException, ClassNotFoundException;
 
-    boolean delete(String database, Authentication auth) throws SQLException, ClassNotFoundException;
+    void delete(String database, Authentication auth) throws SQLException, ClassNotFoundException;
 }

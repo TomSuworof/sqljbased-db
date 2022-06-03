@@ -40,29 +40,42 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public void save(Item item, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
+        NativeAdapter.addItemToDatabase(
+                auth.getDatabase(),
+                auth.getUsername(),
+                auth.getPassword(),
 
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from insert_into_database(?, ?, ?,  ?, ?, ?, ?, ?, ?)");
+                item.getId(),
+                item.getName(),
+                item.getAmountAvailable(),
+                item.getPrice(),
+                item.getColor(),
+                item.getRefurbished()
+                );
 
-            statement.setString(1, auth.getDatabase());
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-
-            statement.setLong(4, item.getId());
-            statement.setString(5, item.getName());
-            statement.setLong(6, item.getAmountAvailable());
-            statement.setInt(7, item.getPrice());
-            statement.setString(8, item.getColor());
-            statement.setBoolean(9, item.getRefurbished());
-            statement.execute();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from insert_into_database(?, ?, ?,  ?, ?, ?, ?, ?, ?)");
+//
+//            statement.setString(1, auth.getDatabase());
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//
+//            statement.setLong(4, item.getId());
+//            statement.setString(5, item.getName());
+//            statement.setLong(6, item.getAmountAvailable());
+//            statement.setInt(7, item.getPrice());
+//            statement.setString(8, item.getColor());
+//            statement.setBoolean(9, item.getRefurbished());
+//            statement.execute();
+//            connection.commit();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
     }
 
     @Override
@@ -185,22 +198,23 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     private void deleteItemsByParam(String paramName, String paramValue, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from delete_from_database_by_param(?, ?, ?, ?, ?)");
-            statement.setString(1, auth.getDatabase());
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-            statement.setString(4, paramName);
-            statement.setString(5, paramValue);
-            statement.executeQuery();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+        NativeAdapter.deleteItemFromDatabase(auth.getDatabase(), auth.getUsername(), auth.getPassword(), paramName, paramValue);
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from delete_from_database_by_param(?, ?, ?, ?, ?)");
+//            statement.setString(1, auth.getDatabase());
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//            statement.setString(4, paramName);
+//            statement.setString(5, paramValue);
+//            statement.executeQuery();
+//            connection.commit();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
     }
 }
