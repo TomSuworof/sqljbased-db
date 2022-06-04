@@ -41,6 +41,22 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 
 /*
  * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    getAllItems
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)[[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_getAllItems
+  (JNIEnv *, jclass, jstring, jstring, jstring);
+
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    getItemsByParam
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)[[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_getItemsByParam
+  (JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
  * Method:    addItem
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JLjava/lang/String;JILjava/lang/String;Z)Z
  */

@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Getter
 @Setter
@@ -49,5 +50,15 @@ public class Item {
                 set.getInt("price"),
                 set.getString("color"),
                 set.getBoolean("refurbished"));
+    }
+
+    public static Item deserialize(List<String> set) {
+        return new Item(
+                Long.parseLong(set.get(0)),
+                set.get(1),
+                Long.parseLong(set.get(2)),
+                Integer.parseInt(set.get(3)),
+                set.get(4),
+                Boolean.parseBoolean(set.get(5)));
     }
 }

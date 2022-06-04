@@ -1,7 +1,9 @@
 package com.dreamteam.sqljbaseddb.repositories;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NativeAdapter {
     static {
@@ -36,6 +38,14 @@ public class NativeAdapter {
     }
 
 
+    public static List<List<String>> findAllItems(String database, String username, String password) {
+        return Arrays.stream(getAllItems(database, username, password)).map(List::of).collect(Collectors.toList());
+    }
+
+    public static List<List<String>> findItemsByParam(String database, String username, String password, String paramName, String paramValue) {
+        return Arrays.stream(getItemsByParam(database, username, password, paramName, paramValue)).map(List::of).collect(Collectors.toList());
+    }
+
     public static void addItemToDatabase(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished) {
         addItem(database, username, password, id, name, amount, price, color, refurbished);
     }
@@ -64,6 +74,10 @@ public class NativeAdapter {
 
     private static native boolean delete(String database, String username, String password);
 
+
+    private static native String[][] getAllItems(String database, String username, String password);
+
+    private static native String[][] getItemsByParam(String database, String username, String password, String paramName, String paramValue);
 
     private static native boolean addItem(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished);
 

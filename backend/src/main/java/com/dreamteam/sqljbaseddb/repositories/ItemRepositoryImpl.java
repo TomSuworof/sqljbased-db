@@ -13,29 +13,34 @@ import java.util.*;
 public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> findAll(Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
+        return NativeAdapter.findAllItems(auth.getDatabase(), auth.getUsername(), auth.getPassword())
+                .stream()
+                .map(Item::deserialize)
+                .toList();
 
-        List<Item> items = new LinkedList<>();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from select_all_from_database(?, ?, ?)");
-            statement.setString(1, auth.getDatabase());
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-            ResultSet set = statement.executeQuery();
-            connection.commit();
-
-            while (set.next()) {
-                items.add(Item.deserialize(set));
-            }
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
-
-        return items;
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        List<Item> items = new LinkedList<>();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from select_all_from_database(?, ?, ?)");
+//            statement.setString(1, auth.getDatabase());
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//            ResultSet set = statement.executeQuery();
+//            connection.commit();
+//
+//            while (set.next()) {
+//                items.add(Item.deserialize(set));
+//            }
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
+//
+//        return items;
     }
 
     @Override
@@ -170,31 +175,35 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     private List<Item> findItemsByParam(String paramName, String paramValue, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        List<Item> items = new LinkedList<>();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from select_from_database_by_param(?, ?, ?, ?, ?)");
-            statement.setString(1, auth.getDatabase());
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-            statement.setString(4, paramName);
-            statement.setString(5, paramValue);
-            ResultSet set = statement.executeQuery();
-            connection.commit();
-
-            while (set.next()) {
-                items.add(Item.deserialize(set));
-            }
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
-
-        return items;
+        return NativeAdapter.findItemsByParam(auth.getDatabase(), auth.getUsername(), auth.getPassword(), paramName, paramValue)
+                .stream()
+                .map(Item::deserialize)
+                .toList();
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        List<Item> items = new LinkedList<>();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from select_from_database_by_param(?, ?, ?, ?, ?)");
+//            statement.setString(1, auth.getDatabase());
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//            statement.setString(4, paramName);
+//            statement.setString(5, paramValue);
+//            ResultSet set = statement.executeQuery();
+//            connection.commit();
+//
+//            while (set.next()) {
+//                items.add(Item.deserialize(set));
+//            }
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
+//
+//        return items;
     }
 
     private void deleteItemsByParam(String paramName, String paramValue, Authentication auth) throws SQLException, ClassNotFoundException {

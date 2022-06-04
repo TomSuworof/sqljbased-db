@@ -5,7 +5,27 @@
 #include <string.h>
 #include "com_dreamteam_sqljbaseddb_repositories_NativeAdapter.h"
 
-#define BUFSIZE 512
+#define BUFSIZE 64
+
+char *randstring(size_t length) {
+    static char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";
+    char *randomString = NULL;
+
+    if (length) {
+        randomString = malloc(sizeof(char) * (length +1));
+
+        if (randomString) {
+            for (int n = 0;n < length;n++) {
+                int key = rand() % (int)(sizeof(charset) -1);
+                randomString[n] = charset[key];
+            }
+
+            randomString[length] = '\0';
+        }
+    }
+
+    return randomString;
+}
 
 JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_getAll
         (JNIEnv* env,
@@ -21,6 +41,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     char user_passwd[BUFSIZE];
     char databases[BUFSIZE][BUFSIZE];
     int num_databases = BUFSIZE;
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     EXEC SQL DECLARE curs CURSOR FOR
@@ -32,7 +53,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     user_passwd[BUFSIZE - 1] = 0;
 
     EXEC SQL whenever sqlerror goto error_lab;
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL select count(dbname) into :num_databases from get_all_databases();
 
@@ -43,14 +64,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
         EXEC SQL FETCH NEXT FROM curs INTO :databases[i];
     }
 
-    for (int i = 0; i < num_databases; i++)
-    {
-        printf("%d %s\n", i, databases[i]);
-    }
-
     EXEC SQL close curs;
 
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
     (*env)->ReleaseStringUTFChars(env, password, passwordNtv);
@@ -65,7 +81,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     return ret;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return NULL;
 }
@@ -85,6 +101,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     char database_name[BUFSIZE];
     char user_name[BUFSIZE];
     char user_passwd[BUFSIZE];
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -95,8 +112,8 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     user_passwd[BUFSIZE - 1] = 0;
 
     EXEC SQL whenever sqlerror goto error_lab;
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
@@ -105,7 +122,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
@@ -125,6 +142,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     char database_name[BUFSIZE];
     char user_name[BUFSIZE];
     char user_passwd[BUFSIZE];
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -134,13 +152,13 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
     user_passwd[BUFSIZE - 1] = 0;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from create_database(:database_name, :user_name, :user_passwd);
 
     EXEC SQL commit;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
@@ -149,7 +167,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
@@ -169,6 +187,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     char database_name[BUFSIZE];
     char user_name[BUFSIZE];
     char user_passwd[BUFSIZE];
+    char *conn_name;
     EXEC SQL end declare section;
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -178,7 +197,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
     user_passwd[BUFSIZE - 1] = 0;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from delete_database(:database_name, :user_name, :user_passwd);
@@ -193,9 +212,207 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_getAllItems
+        (JNIEnv* env,
+         jclass clazz,
+         jstring database,
+         jstring username,
+         jstring password)
+{
+    const char *databaseNtv = (*env)->GetStringUTFChars(env, database, NULL);
+    const char *usernameNtv = (*env)->GetStringUTFChars(env, username, NULL);
+    const char *passwordNtv = (*env)->GetStringUTFChars(env, password, NULL);
+
+    EXEC SQL begin declare section;
+    char database_name[BUFSIZE];
+    char user_name[BUFSIZE];
+    char user_passwd[BUFSIZE];
+
+    char item_ids[BUFSIZE][BUFSIZE];
+    char item_names[BUFSIZE][BUFSIZE];
+    char item_amounts[BUFSIZE][BUFSIZE];
+    char item_prices[BUFSIZE][BUFSIZE];
+    char item_colors[BUFSIZE][BUFSIZE];
+    char item_refurbisheds[BUFSIZE][BUFSIZE];
+
+    int num_items = BUFSIZE;
+
+    char *conn_name = randstring(5);
+    EXEC SQL end declare section;
+
+    strncpy(database_name, databaseNtv, BUFSIZE - 1);
+    database_name[BUFSIZE - 1] = 0;
+    strncpy(user_name, usernameNtv, BUFSIZE - 1);
+    user_name[BUFSIZE - 1] = 0;
+    strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
+    user_passwd[BUFSIZE - 1] = 0;
+
+    EXEC SQL DECLARE item_curs CURSOR FOR
+        select id, name, amountavailable, price, color, refurbished from select_all_from_database(:database_name, :user_name, :user_passwd);
+
+    EXEC SQL whenever sqlerror goto error_lab;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
+    printf("connected\n");
+
+    EXEC SQL select count(id) into :num_items from select_all_from_database(:database_name, :user_name, :user_passwd);
+    printf("num items: %d\n", num_items);
+
+    EXEC SQL OPEN item_curs;
+
+    for (int i = 0; i < num_items; i++)
+    {
+        EXEC SQL FETCH NEXT FROM item_curs INTO :item_ids[i], :item_names[i], :item_amounts[i], :item_prices[i], :item_colors[i], :item_refurbisheds[i];
+    }
+
+    printf("items collected\n");
+
+    EXEC SQL close item_curs;
+
+    EXEC SQL disconnect :conn_name;
+
+    (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
+    (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
+    (*env)->ReleaseStringUTFChars(env, password, passwordNtv);
+
+    jobjectArray firstItem = (jobjectArray) (*env)->NewObjectArray(env, 6, (*env)->FindClass(env, "java/lang/String"), (*env)->NewStringUTF(env, ""));
+    (*env)->SetObjectArrayElement(env, firstItem, 0, (*env)->NewStringUTF(env, item_ids[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 1, (*env)->NewStringUTF(env, item_names[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 2, (*env)->NewStringUTF(env, item_amounts[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 3, (*env)->NewStringUTF(env, item_prices[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 4, (*env)->NewStringUTF(env, item_colors[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 5, (*env)->NewStringUTF(env, item_refurbisheds[0]));
+
+    jobjectArray items = (jobjectArray) (*env)->NewObjectArray(env, num_items, (*env)->GetObjectClass(env, firstItem), firstItem);
+
+    for (int i = 1; i < num_items; i++)
+    {
+        jobjectArray item = (jobjectArray) (*env)->NewObjectArray(env, 6, (*env)->FindClass(env, "java/lang/String"), (*env)->NewStringUTF(env, ""));
+        (*env)->SetObjectArrayElement(env, item, 0, (*env)->NewStringUTF(env, item_ids[i]));
+        (*env)->SetObjectArrayElement(env, item, 1, (*env)->NewStringUTF(env, item_names[i]));
+        (*env)->SetObjectArrayElement(env, item, 2, (*env)->NewStringUTF(env, item_amounts[i]));
+        (*env)->SetObjectArrayElement(env, item, 3, (*env)->NewStringUTF(env, item_prices[i]));
+        (*env)->SetObjectArrayElement(env, item, 4, (*env)->NewStringUTF(env, item_colors[i]));
+        (*env)->SetObjectArrayElement(env, item, 5, (*env)->NewStringUTF(env, item_refurbisheds[i]));
+
+        (*env)->SetObjectArrayElement(env, items, i, item);
+    }
+
+    return items;
+
+  error_lab:
+    EXEC SQL disconnect :conn_name;
+    printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
+    return NULL;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_getItemsByParam
+        (JNIEnv* env,
+         jclass clazz,
+         jstring database,
+         jstring username,
+         jstring password,
+         jstring paramName,
+         jstring paramValue)
+{
+    const char *databaseNtv = (*env)->GetStringUTFChars(env, database, NULL);
+    const char *usernameNtv = (*env)->GetStringUTFChars(env, username, NULL);
+    const char *passwordNtv = (*env)->GetStringUTFChars(env, password, NULL);
+    const char *paramNameNtv = (*env)->GetStringUTFChars(env, paramName, NULL);
+    const char *paramValueNtv = (*env)->GetStringUTFChars(env, paramValue, NULL);
+
+    EXEC SQL begin declare section;
+    char database_name[BUFSIZE];
+    char user_name[BUFSIZE];
+    char user_passwd[BUFSIZE];
+    char param_name[BUFSIZE];
+    char param_value[BUFSIZE];
+
+    char item_ids[BUFSIZE][BUFSIZE];
+    char item_names[BUFSIZE][BUFSIZE];
+    char item_amounts[BUFSIZE][BUFSIZE];
+    char item_prices[BUFSIZE][BUFSIZE];
+    char item_colors[BUFSIZE][BUFSIZE];
+    char item_refurbisheds[BUFSIZE][BUFSIZE];
+
+    int num_items = BUFSIZE;
+
+    char *conn_name = randstring(5);
+    EXEC SQL end declare section;
+
+    strncpy(database_name, databaseNtv, BUFSIZE - 1);
+    database_name[BUFSIZE - 1] = 0;
+    strncpy(user_name, usernameNtv, BUFSIZE - 1);
+    user_name[BUFSIZE - 1] = 0;
+    strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
+    user_passwd[BUFSIZE - 1] = 0;
+    strncpy(param_name, paramNameNtv, BUFSIZE - 1);
+    user_name[BUFSIZE - 1] = 0;
+    strncpy(param_value, paramValueNtv, BUFSIZE - 1);
+    param_value[BUFSIZE - 1] = 0;
+
+    EXEC SQL DECLARE item_curs_with_param CURSOR FOR
+        select id, name, amountavailable, price, color, refurbished from select_from_database_by_param(:database_name, :user_name, :user_passwd, :param_name, :param_value);
+
+    EXEC SQL whenever sqlerror goto error_lab;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
+    printf("connected\n");
+
+    EXEC SQL select count(id) into :num_items from select_from_database_by_param(:database_name, :user_name, :user_passwd, :param_name, :param_value);
+    printf("num items: %d\n", num_items);
+
+    EXEC SQL OPEN item_curs_with_param;
+
+    for (int i = 0; i < num_items; i++)
+    {
+        EXEC SQL FETCH NEXT FROM item_curs_with_param INTO :item_ids[i], :item_names[i], :item_amounts[i], :item_prices[i], :item_colors[i], :item_refurbisheds[i];
+    }
+
+    printf("items collected\n");
+
+    EXEC SQL close item_curs_with_param;
+
+    EXEC SQL disconnect :conn_name;
+
+    (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
+    (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
+    (*env)->ReleaseStringUTFChars(env, password, passwordNtv);
+    (*env)->ReleaseStringUTFChars(env, paramName, paramNameNtv);
+    (*env)->ReleaseStringUTFChars(env, paramValue, paramValueNtv);
+
+    jobjectArray firstItem = (jobjectArray) (*env)->NewObjectArray(env, 6, (*env)->FindClass(env, "java/lang/String"), (*env)->NewStringUTF(env, ""));
+    (*env)->SetObjectArrayElement(env, firstItem, 0, (*env)->NewStringUTF(env, item_ids[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 1, (*env)->NewStringUTF(env, item_names[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 2, (*env)->NewStringUTF(env, item_amounts[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 3, (*env)->NewStringUTF(env, item_prices[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 4, (*env)->NewStringUTF(env, item_colors[0]));
+    (*env)->SetObjectArrayElement(env, firstItem, 5, (*env)->NewStringUTF(env, item_refurbisheds[0]));
+
+    jobjectArray items = (jobjectArray) (*env)->NewObjectArray(env, num_items, (*env)->GetObjectClass(env, firstItem), firstItem);
+
+    for (int i = 1; i < num_items; i++)
+    {
+        jobjectArray item = (jobjectArray) (*env)->NewObjectArray(env, 6, (*env)->FindClass(env, "java/lang/String"), (*env)->NewStringUTF(env, ""));
+        (*env)->SetObjectArrayElement(env, item, 0, (*env)->NewStringUTF(env, item_ids[i]));
+        (*env)->SetObjectArrayElement(env, item, 1, (*env)->NewStringUTF(env, item_names[i]));
+        (*env)->SetObjectArrayElement(env, item, 2, (*env)->NewStringUTF(env, item_amounts[i]));
+        (*env)->SetObjectArrayElement(env, item, 3, (*env)->NewStringUTF(env, item_prices[i]));
+        (*env)->SetObjectArrayElement(env, item, 4, (*env)->NewStringUTF(env, item_colors[i]));
+        (*env)->SetObjectArrayElement(env, item, 5, (*env)->NewStringUTF(env, item_refurbisheds[i]));
+
+        (*env)->SetObjectArrayElement(env, items, i, item);
+    }
+
+    return items;
+
+  error_lab:
+    EXEC SQL disconnect :conn_name;
+    printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
+    return NULL;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_addItem
@@ -232,6 +449,8 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     int item_price;
     char item_color[BUFSIZE];
     bool item_refurbished;
+
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -250,13 +469,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     item_color[BUFSIZE - 1] = 0;
     item_refurbished = refurbishedNtv;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from insert_into_database(:database_name, :user_name, :user_passwd,  :item_id, :item_name, :item_amount, :item_price, :item_color, :item_refurbished);
+    printf("item added\n");
 
     EXEC SQL commit;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
@@ -268,7 +488,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
@@ -296,6 +516,8 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 
     char param_name[BUFSIZE];
     char param_value[BUFSIZE];
+
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -310,13 +532,13 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(param_value, paramValueNtv, BUFSIZE - 1);
     param_value[BUFSIZE - 1] = 0;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from delete_from_database_by_param(:database_name, :user_name, :user_passwd, :param_name, :param_value);
 
     EXEC SQL commit;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
     (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
@@ -328,7 +550,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
@@ -352,6 +574,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     char password_to_save[BUFSIZE];
     char user_name[BUFSIZE];
     char user_passwd[BUFSIZE];
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(username_to_save, usernameToSaveNtv, BUFSIZE - 1);
@@ -364,13 +587,13 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
     user_passwd[BUFSIZE - 1] = 0;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from add_superuser(:username_to_save, :password_to_save, :user_name, :user_passwd);
 
     EXEC SQL commit;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, usernameToSave, usernameToSaveNtv);
     (*env)->ReleaseStringUTFChars(env, passwordToSave, passwordToSaveNtv);
@@ -381,7 +604,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
@@ -408,6 +631,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     char user_name[BUFSIZE];
     char user_passwd[BUFSIZE];
     char database_name[BUFSIZE];
+    char *conn_name = randstring(5);
     EXEC SQL end declare section;
 
     strncpy(username_to_save, usernameToSaveNtv, BUFSIZE - 1);
@@ -422,13 +646,13 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
     database_name[BUFSIZE - 1] = 0;
 
-    EXEC SQL connect to data_management as dm_conn user :user_name/:user_passwd;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
 
     EXEC SQL whenever sqlerror goto error_lab;
     EXEC SQL select * from add_casual_to_database(:username_to_save, :password_to_save, :user_name, :user_passwd, :database_name);
 
     EXEC SQL commit;
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
 
     (*env)->ReleaseStringUTFChars(env, usernameToSave, usernameToSaveNtv);
     (*env)->ReleaseStringUTFChars(env, passwordToSave, passwordToSaveNtv);
@@ -440,7 +664,7 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return true;
 
   error_lab:
-    EXEC SQL disconnect dm_conn;
+    EXEC SQL disconnect :conn_name;
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
 }
