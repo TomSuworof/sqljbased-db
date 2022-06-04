@@ -45,6 +45,17 @@ public class NativeAdapter {
     }
 
 
+    public static void addSuperuserToAllDatabases(String usernameToSave, String passwordToSave, String authUsername, String authPassword) {
+        addSuperuser(usernameToSave, passwordToSave, authUsername, authPassword);
+    }
+
+    public static void addCasualToThisDatabase(String usernameToSave, String passwordToSave, String authUsername, String authPassword, String database) {
+        addCasual(usernameToSave, passwordToSave, authUsername, authPassword, database);
+    }
+
+
+    // native methods
+
     private static native String[] getAll(String username, String password);
 
     private static native boolean test(String database, String username, String password);
@@ -57,4 +68,9 @@ public class NativeAdapter {
     private static native boolean addItem(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished);
 
     private static native boolean deleteItem(String database, String username, String password, String paramName, String paramValue);
+
+
+    private static native boolean addSuperuser(String usernameToSave, String passwordToSave, String authUsername, String authPassword);
+
+    private static native boolean addCasual(String usernameToSave, String passwordToSave, String authUsername, String authPassword, String database);
 }

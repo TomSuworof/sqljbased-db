@@ -13,25 +13,25 @@ import java.util.stream.Collectors;
 public class DatabaseRepositoryImpl implements DatabaseRepository {
     @Override
     public List<String> findAll(Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
 
-        List<String> databases =  new LinkedList<>(); // NativeAdapter.findAll(auth.getUsername(), auth.getPassword());
+        List<String> databases =  NativeAdapter.findAll(auth.getUsername(), auth.getPassword());
 
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from get_all_databases();");
-            ResultSet set = statement.executeQuery();
-            connection.commit();
-
-            while (set.next()) {
-                databases.add(set.getString("dbname"));
-            }
-
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from get_all_databases();");
+//            ResultSet set = statement.executeQuery();
+//            connection.commit();
+//
+//            while (set.next()) {
+//                databases.add(set.getString("dbname"));
+//            }
+//
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
 
         return databases
                 .stream()

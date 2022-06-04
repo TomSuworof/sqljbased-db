@@ -42,41 +42,43 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private void saveSuperuser(User user, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from add_superuser(?, ?, ?, ?)");
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, auth.getUsername());
-            statement.setString(4, auth.getPassword());
-            statement.execute();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+        NativeAdapter.addSuperuserToAllDatabases(user.getUsername(), user.getPassword(), auth.getUsername(), auth.getPassword());
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from add_superuser(?, ?, ?, ?)");
+//            statement.setString(1, user.getUsername());
+//            statement.setString(2, user.getPassword());
+//            statement.setString(3, auth.getUsername());
+//            statement.setString(4, auth.getPassword());
+//            statement.execute();
+//            connection.commit();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
     }
 
     private void saveCasual(User user, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from add_casual_to_database(?, ?, ?, ?, ?)");
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, auth.getUsername());
-            statement.setString(4, auth.getPassword());
-            statement.setString(5, auth.getDatabase());
-            statement.execute();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
-        }
+        NativeAdapter.addCasualToThisDatabase(user.getUsername(), user.getPassword(), auth.getUsername(), auth.getPassword(), auth.getDatabase());
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from add_casual_to_database(?, ?, ?, ?, ?)");
+//            statement.setString(1, user.getUsername());
+//            statement.setString(2, user.getPassword());
+//            statement.setString(3, auth.getUsername());
+//            statement.setString(4, auth.getPassword());
+//            statement.setString(5, auth.getDatabase());
+//            statement.execute();
+//            connection.commit();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//            throw e;
+//        }
     }
 }

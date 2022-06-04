@@ -55,6 +55,22 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_deleteItem
   (JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring);
 
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    addSuperuser
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_addSuperuser
+  (JNIEnv *, jclass, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    addCasual
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_addCasual
+  (JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif
