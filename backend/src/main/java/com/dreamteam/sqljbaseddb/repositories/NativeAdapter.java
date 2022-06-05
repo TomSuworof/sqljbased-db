@@ -53,11 +53,13 @@ public class NativeAdapter {
     }
 
     public static List<List<String>> findAllItems(String database, String username, String password) {
-        return preprocessItems(getAllItems(database, username, password));
+        long numberOfAllItems = Long.parseLong(getNumberOfAllItems(database, username, password));
+        return preprocessItems(getAllItems(database, username, password, numberOfAllItems));
     }
 
     public static List<List<String>> findItemsByParam(String database, String username, String password, String paramName, String paramValue) {
-        return preprocessItems(getItemsByParam(database, username, password, paramName, paramValue));
+        long numberOfItemsToFind = Long.parseLong(getNumberOfItemsPyParam(database, username, password, paramName, paramValue));
+        return preprocessItems(getItemsByParam(database, username, password, paramName, paramValue, numberOfItemsToFind));
     }
 
     public static void addItemToDatabase(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished) {
@@ -93,9 +95,13 @@ public class NativeAdapter {
     private static native boolean delete(String database, String username, String password);
 
 
-    private static native String[][] getAllItems(String database, String username, String password);
+    private static native String getNumberOfAllItems(String database, String username, String password);
 
-    private static native String[][] getItemsByParam(String database, String username, String password, String paramName, String paramValue);
+    private static native String[][] getAllItems(String database, String username, String password, long numberOfItems);
+
+    private static native String getNumberOfItemsPyParam(String database, String username, String password, String paramName, String paramValue);
+
+    private static native String[][] getItemsByParam(String database, String username, String password, String paramName, String paramValue, long numberOfItems);
 
     private static native boolean addItem(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished);
 
