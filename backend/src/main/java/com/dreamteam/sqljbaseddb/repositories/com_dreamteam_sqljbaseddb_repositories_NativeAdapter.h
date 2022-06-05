@@ -73,6 +73,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
 
 /*
  * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    deleteAllItems
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_deleteAllItems
+  (JNIEnv *, jclass, jstring, jstring, jstring);
+
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
  * Method:    addItem
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JLjava/lang/String;JILjava/lang/String;Z)Z
  */

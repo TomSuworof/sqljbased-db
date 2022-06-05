@@ -22,7 +22,7 @@ public class UtilsService {
     public File getBackupFile(Authentication auth) {
 
         try {
-            File csvFile = File.createTempFile("jdbcbased-bd", ".csv");
+            File csvFile = File.createTempFile("sqljbased-bd", ".csv");
             PrintWriter writer = new PrintWriter(csvFile);
 
             List<Item> items = itemService.getAllItems(auth);
@@ -63,7 +63,7 @@ public class UtilsService {
                 row.createCell(5).setCellValue(items.get(i).getRefurbished());
             }
 
-            File xlsxFile = File.createTempFile("jdbcbased-db", ".xlsx");
+            File xlsxFile = File.createTempFile("sqljbased-db", ".xlsx");
             FileOutputStream outputStream = new FileOutputStream(xlsxFile);
 
             workbook.write(outputStream);

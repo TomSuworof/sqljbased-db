@@ -62,6 +62,13 @@ public class NativeAdapter {
         return preprocessItems(getItemsByParam(database, username, password, paramName, paramValue, numberOfItemsToFind));
     }
 
+    public static void deleteAllItemsFromDatabase(String database, String username, String password) throws SQLException {
+        boolean success = deleteAllItems(database, username, password);
+        if (!success) {
+            throw new SQLException("deleting failed");
+        }
+    }
+
     public static void addItemToDatabase(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished) {
         addItem(database, username, password, id, name, amount, price, color, refurbished);
     }
@@ -102,6 +109,8 @@ public class NativeAdapter {
     private static native String getNumberOfItemsPyParam(String database, String username, String password, String paramName, String paramValue);
 
     private static native String[][] getItemsByParam(String database, String username, String password, String paramName, String paramValue, long numberOfItems);
+
+    private static native boolean deleteAllItems(String database, String username, String password);
 
     private static native boolean addItem(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished);
 

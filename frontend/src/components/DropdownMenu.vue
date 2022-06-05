@@ -119,7 +119,7 @@ export default {
             let fileLink = document.createElement('a');
 
             fileLink.href = fileURL;
-            fileLink.setAttribute('download', 'filebased-db.csv');
+            fileLink.setAttribute('download', 'sqljbased-db.csv');
             document.body.appendChild(fileLink);
 
             fileLink.click();
@@ -132,7 +132,7 @@ export default {
             let fileLink = document.createElement('a');
 
             fileLink.href = fileURL;
-            fileLink.setAttribute('download', 'filebased-db.xlsx');
+            fileLink.setAttribute('download', 'sqljbased-db.xlsx');
             document.body.appendChild(fileLink);
 
             fileLink.click();
