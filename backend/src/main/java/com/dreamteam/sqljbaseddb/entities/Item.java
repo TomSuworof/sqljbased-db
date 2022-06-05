@@ -59,6 +59,6 @@ public class Item {
                 Long.parseLong(set.get(2)),
                 Integer.parseInt(set.get(3)),
                 set.get(4),
-                Boolean.parseBoolean(set.get(5)));
+                set.get(5).equals("t"));
     }
 }
