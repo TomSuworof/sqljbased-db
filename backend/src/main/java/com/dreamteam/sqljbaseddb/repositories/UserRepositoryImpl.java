@@ -19,26 +19,27 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByUsername(String username, Authentication auth) throws SQLException, ClassNotFoundException {
-        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
-        connection.setAutoCommit(false);
-        Savepoint savepoint = connection.setSavepoint();
-
-        ResultSet set = null;
-
-        try {
-            PreparedStatement statement = connection.prepareStatement("select * from get_user_by_username(?, ?, ?, ?)");
-            statement.setString(1, username);
-            statement.setString(2, auth.getUsername());
-            statement.setString(3, auth.getPassword());
-            statement.setString(4, auth.getDatabase());
-            set = statement.executeQuery();
-            connection.commit();
-            return set.next();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-        }
-
-        return false;
+        return NativeAdapter.userExistsByUsername(username, auth.getUsername(), auth.getPassword(), auth.getDatabase());
+//        Connection connection = PostgresConnectionManager.getInstance(auth).getConnection();
+//        connection.setAutoCommit(false);
+//        Savepoint savepoint = connection.setSavepoint();
+//
+//        ResultSet set = null;
+//
+//        try {
+//            PreparedStatement statement = connection.prepareStatement("select * from get_user_by_username(?, ?, ?, ?)");
+//            statement.setString(1, username);
+//            statement.setString(2, auth.getUsername());
+//            statement.setString(3, auth.getPassword());
+//            statement.setString(4, auth.getDatabase());
+//            set = statement.executeQuery();
+//            connection.commit();
+//            return set.next();
+//        } catch (SQLException e) {
+//            connection.rollback(savepoint);
+//        }
+//
+//        return false;
     }
 
     private void saveSuperuser(User user, Authentication auth) throws SQLException, ClassNotFoundException {

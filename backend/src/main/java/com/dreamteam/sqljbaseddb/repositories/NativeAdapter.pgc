@@ -555,6 +555,63 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     return false;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_existsByUsername
+        (JNIEnv* env,
+         jclass clazz,
+         jstring usernameToSearch,
+         jstring username,
+         jstring password,
+         jstring database)
+{
+    const char *usernameToSearchNtv = (*env)->GetStringUTFChars(env, usernameToSearch, NULL);
+    const char *databaseNtv = (*env)->GetStringUTFChars(env, database, NULL);
+    const char *usernameNtv = (*env)->GetStringUTFChars(env, username, NULL);
+    const char *passwordNtv = (*env)->GetStringUTFChars(env, password, NULL);
+
+    EXEC SQL begin declare section;
+    char database_name[BUFSIZE];
+    char user_name[BUFSIZE];
+    char user_passwd[BUFSIZE];
+    char username_to_search[BUFSIZE];
+    bool user_found = true;
+    char *conn_name = randstring(5);
+    EXEC SQL end declare section;
+
+    strncpy(database_name, databaseNtv, BUFSIZE - 1);
+    database_name[BUFSIZE - 1] = 0;
+    strncpy(user_name, usernameNtv, BUFSIZE - 1);
+    user_name[BUFSIZE - 1] = 0;
+    strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
+    user_passwd[BUFSIZE - 1] = 0;
+    strncpy(username_to_search, usernameToSearchNtv, BUFSIZE - 1);
+    user_name[BUFSIZE - 1] = 0;
+
+    EXEC SQL DECLARE user_curs CURSOR FOR
+        select user_exists from user_exists_by_username(:username_to_search, :user_name, :user_passwd, :database_name);
+
+    EXEC SQL whenever sqlerror goto error_lab;
+    EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
+    printf("connected\n");
+
+    EXEC SQL OPEN user_curs;
+    EXEC SQL FETCH NEXT user_curs INTO :user_found;
+    EXEC SQL close user_curs;
+
+    EXEC SQL disconnect :conn_name;
+
+    (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
+    (*env)->ReleaseStringUTFChars(env, username, usernameNtv);
+    (*env)->ReleaseStringUTFChars(env, password, passwordNtv);
+    (*env)->ReleaseStringUTFChars(env, usernameToSearch, usernameToSearchNtv);
+
+    return user_found;
+
+  error_lab:
+    EXEC SQL disconnect :conn_name;
+    printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
+    return false;
+}
+
 JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_addSuperuser
         (JNIEnv* env,
          jclass clazz,

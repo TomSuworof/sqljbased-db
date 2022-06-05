@@ -73,6 +73,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 
 /*
  * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
+ * Method:    existsByUsername
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAdapter_existsByUsername
+  (JNIEnv *, jclass, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     com_dreamteam_sqljbaseddb_repositories_NativeAdapter
  * Method:    addSuperuser
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */

@@ -55,6 +55,10 @@ public class NativeAdapter {
     }
 
 
+    public static boolean userExistsByUsername(String usernameToSearch, String username, String password, String database) {
+        return existsByUsername(usernameToSearch, username, password, database);
+    }
+
     public static void addSuperuserToAllDatabases(String usernameToSave, String passwordToSave, String authUsername, String authPassword) {
         addSuperuser(usernameToSave, passwordToSave, authUsername, authPassword);
     }
@@ -83,6 +87,8 @@ public class NativeAdapter {
 
     private static native boolean deleteItem(String database, String username, String password, String paramName, String paramValue);
 
+
+    private static native boolean existsByUsername(String usernameToSearch, String username, String password, String database);
 
     private static native boolean addSuperuser(String usernameToSave, String passwordToSave, String authUsername, String authPassword);
 
