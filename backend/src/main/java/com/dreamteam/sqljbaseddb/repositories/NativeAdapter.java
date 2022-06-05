@@ -2,6 +2,7 @@ package com.dreamteam.sqljbaseddb.repositories;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,12 +39,25 @@ public class NativeAdapter {
     }
 
 
+    private static List<List<String>> preprocessItems(String[][] items) {
+        if (items == null) {
+            try {
+                Arrays.stream(items).forEach(System.out::println); // if 'items' is null, then there is an error in pgc code
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(items).map(List::of).collect(Collectors.toList());
+    }
+
     public static List<List<String>> findAllItems(String database, String username, String password) {
-        return Arrays.stream(getAllItems(database, username, password)).map(List::of).collect(Collectors.toList());
+        return preprocessItems(getAllItems(database, username, password));
     }
 
     public static List<List<String>> findItemsByParam(String database, String username, String password, String paramName, String paramValue) {
-        return Arrays.stream(getItemsByParam(database, username, password, paramName, paramValue)).map(List::of).collect(Collectors.toList());
+        return preprocessItems(getItemsByParam(database, username, password, paramName, paramValue));
     }
 
     public static void addItemToDatabase(String database, String username, String password, long id, String name, long amount, int price, String color, boolean refurbished) {

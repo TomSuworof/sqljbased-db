@@ -240,7 +240,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     char item_colors[BUFSIZE][BUFSIZE];
     char item_refurbisheds[BUFSIZE][BUFSIZE];
 
-    int num_items = BUFSIZE;
+    long long num_items = 2;
 
     char *conn_name = randstring(5);
     EXEC SQL end declare section;
@@ -252,6 +252,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     strncpy(user_passwd, passwordNtv, BUFSIZE - 1);
     user_passwd[BUFSIZE - 1] = 0;
 
+    EXEC SQL DECLARE num_curs CURSOR FOR
+        select count from count_all_from_database(:database_name, :user_name, :user_passwd);
     EXEC SQL DECLARE item_curs CURSOR FOR
         select id, name, amountavailable, price, color, refurbished from select_all_from_database(:database_name, :user_name, :user_passwd);
 
@@ -259,7 +261,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     EXEC SQL connect to data_management as :conn_name user :user_name/:user_passwd;
     printf("connected\n");
 
-    EXEC SQL select count(id) into :num_items from select_all_from_database(:database_name, :user_name, :user_passwd);
+    EXEC SQL OPEN num_curs;
+    EXEC SQL FETCH NEXT num_curs into :num_items; // crashes JVM
+    EXEC SQL CLOSE num_curs;
+//    EXEC SQL select count(*) into :num_items from select_all_from_database(:database_name, :user_name, :user_passwd);
     printf("num items: %d\n", num_items);
 
     EXEC SQL OPEN item_curs;
@@ -339,7 +344,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     char item_colors[BUFSIZE][BUFSIZE];
     char item_refurbisheds[BUFSIZE][BUFSIZE];
 
-    int num_items = BUFSIZE;
+    long long num_items = BUFSIZE;
 
     char *conn_name = randstring(5);
     EXEC SQL end declare section;

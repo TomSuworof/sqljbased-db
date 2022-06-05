@@ -23,7 +23,7 @@ javac -h ./ NativeAdapter.java |\
   -IC:/Users/rc199/.jdks/openjdk-17.0.2/include/win32 \
   -ID:/Programs/PostgreSQL/include \
   -LD:/Programs/PostgreSQL/bin \
-  -lecpg -lpq 
+  -lecpg
 ```
 
 And run as usual program

@@ -432,7 +432,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
      
      
 
-       
+        
 
        
     
@@ -464,7 +464,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
  char item_refurbisheds [ BUFSIZE ] [ BUFSIZE ] ;
  
 #line 243 "NativeAdapter.pgc"
- int num_items = BUFSIZE ;
+ long long num_items = 2 ;
  
 #line 245 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
@@ -482,7 +482,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     ECPGset_var( 0, &( user_passwd ), __LINE__);\
  ECPGset_var( 1, &( user_name ), __LINE__);\
  ECPGset_var( 2, &( database_name ), __LINE__);\
- /* declare item_curs cursor for select id , name , amountavailable , price , color , refurbished from select_all_from_database ( $1  , $2  , $3  ) */
+ /* declare num_curs cursor for select count from count_all_from_database ( $1  , $2  , $3  ) */
 #line 256 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;
@@ -490,32 +490,56 @@ if (sqlca.sqlcode < 0) goto error_lab;
 
 #line 256 "NativeAdapter.pgc"
 
-
-    /* exec sql whenever sqlerror  goto  error_lab ; */
+    ECPGset_var( 3, &( user_passwd ), __LINE__);\
+ ECPGset_var( 4, &( user_name ), __LINE__);\
+ ECPGset_var( 5, &( database_name ), __LINE__);\
+ /* declare item_curs cursor for select id , name , amountavailable , price , color , refurbished from select_all_from_database ( $1  , $2  , $3  ) */
 #line 258 "NativeAdapter.pgc"
 
+if (sqlca.sqlcode < 0) goto error_lab;
+#line 258 "NativeAdapter.pgc"
+
+#line 258 "NativeAdapter.pgc"
+
+
+    /* exec sql whenever sqlerror  goto  error_lab ; */
+#line 260 "NativeAdapter.pgc"
+
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 259 "NativeAdapter.pgc"
+#line 261 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 259 "NativeAdapter.pgc"
+#line 261 "NativeAdapter.pgc"
 
     printf("connected\n");
 
-    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select count ( id ) from select_all_from_database ( $1  , $2  , $3  )", 
+    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "declare num_curs cursor for select count from count_all_from_database ( $1  , $2  , $3  )", 
 	ECPGt_char,(database_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(user_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(user_passwd),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
-	ECPGt_int,&(num_items),(long)1,(long)1,sizeof(int), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
-#line 262 "NativeAdapter.pgc"
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
+#line 264 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 262 "NativeAdapter.pgc"
+#line 264 "NativeAdapter.pgc"
 
+    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "fetch next num_curs", ECPGt_EOIT, 
+	ECPGt_long_long,&(num_items),(long)1,(long)1,sizeof(long long), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
+#line 265 "NativeAdapter.pgc"
+
+if (sqlca.sqlcode < 0) goto error_lab;}
+#line 265 "NativeAdapter.pgc"
+
+    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "close num_curs", ECPGt_EOIT, ECPGt_EORT);
+#line 266 "NativeAdapter.pgc"
+
+if (sqlca.sqlcode < 0) goto error_lab;}
+#line 266 "NativeAdapter.pgc"
+
+//    EXEC SQL select count(*) into :num_items from select_all_from_database(:database_name, :user_name, :user_passwd);
     printf("num items: %d\n", num_items);
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "declare item_curs cursor for select id , name , amountavailable , price , color , refurbished from select_all_from_database ( $1  , $2  , $3  )", 
@@ -525,10 +549,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(user_passwd),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 265 "NativeAdapter.pgc"
+#line 270 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 265 "NativeAdapter.pgc"
+#line 270 "NativeAdapter.pgc"
 
 
     for (int i = 0; i < num_items; i++)
@@ -546,27 +570,27 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(item_refurbisheds[i]),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
-#line 269 "NativeAdapter.pgc"
+#line 274 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 269 "NativeAdapter.pgc"
+#line 274 "NativeAdapter.pgc"
 
     }
 
     printf("items collected\n");
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "close item_curs", ECPGt_EOIT, ECPGt_EORT);
-#line 274 "NativeAdapter.pgc"
+#line 279 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 274 "NativeAdapter.pgc"
+#line 279 "NativeAdapter.pgc"
 
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 276 "NativeAdapter.pgc"
+#line 281 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 276 "NativeAdapter.pgc"
+#line 281 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
@@ -600,10 +624,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 308 "NativeAdapter.pgc"
+#line 313 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 308 "NativeAdapter.pgc"
+#line 313 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return NULL;
@@ -638,50 +662,50 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
      
      
 
-       
+        
 
        
     
-#line 329 "NativeAdapter.pgc"
+#line 334 "NativeAdapter.pgc"
  char database_name [ BUFSIZE ] ;
  
-#line 330 "NativeAdapter.pgc"
+#line 335 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 331 "NativeAdapter.pgc"
+#line 336 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 332 "NativeAdapter.pgc"
+#line 337 "NativeAdapter.pgc"
  char param_name [ BUFSIZE ] ;
  
-#line 333 "NativeAdapter.pgc"
+#line 338 "NativeAdapter.pgc"
  char param_value [ BUFSIZE ] ;
  
-#line 335 "NativeAdapter.pgc"
+#line 340 "NativeAdapter.pgc"
  char item_ids [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 336 "NativeAdapter.pgc"
+#line 341 "NativeAdapter.pgc"
  char item_names [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 337 "NativeAdapter.pgc"
+#line 342 "NativeAdapter.pgc"
  char item_amounts [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 338 "NativeAdapter.pgc"
+#line 343 "NativeAdapter.pgc"
  char item_prices [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 339 "NativeAdapter.pgc"
+#line 344 "NativeAdapter.pgc"
  char item_colors [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 340 "NativeAdapter.pgc"
+#line 345 "NativeAdapter.pgc"
  char item_refurbisheds [ BUFSIZE ] [ BUFSIZE ] ;
  
-#line 342 "NativeAdapter.pgc"
- int num_items = BUFSIZE ;
+#line 347 "NativeAdapter.pgc"
+ long long num_items = BUFSIZE ;
  
-#line 344 "NativeAdapter.pgc"
+#line 349 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 345 "NativeAdapter.pgc"
+#line 350 "NativeAdapter.pgc"
 
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -695,28 +719,28 @@ JNIEXPORT jobjectArray JNICALL Java_com_dreamteam_sqljbaseddb_repositories_Nativ
     strncpy(param_value, paramValueNtv, BUFSIZE - 1);
     param_value[BUFSIZE - 1] = 0;
 
-    ECPGset_var( 3, &( param_value ), __LINE__);\
- ECPGset_var( 4, &( param_name ), __LINE__);\
- ECPGset_var( 5, &( user_passwd ), __LINE__);\
- ECPGset_var( 6, &( user_name ), __LINE__);\
- ECPGset_var( 7, &( database_name ), __LINE__);\
+    ECPGset_var( 6, &( param_value ), __LINE__);\
+ ECPGset_var( 7, &( param_name ), __LINE__);\
+ ECPGset_var( 8, &( user_passwd ), __LINE__);\
+ ECPGset_var( 9, &( user_name ), __LINE__);\
+ ECPGset_var( 10, &( database_name ), __LINE__);\
  /* declare item_curs_with_param cursor for select id , name , amountavailable , price , color , refurbished from select_from_database_by_param ( $1  , $2  , $3  , $4  , $5  ) */
-#line 359 "NativeAdapter.pgc"
+#line 364 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;
-#line 359 "NativeAdapter.pgc"
+#line 364 "NativeAdapter.pgc"
 
-#line 359 "NativeAdapter.pgc"
+#line 364 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 361 "NativeAdapter.pgc"
+#line 366 "NativeAdapter.pgc"
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 362 "NativeAdapter.pgc"
+#line 367 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 362 "NativeAdapter.pgc"
+#line 367 "NativeAdapter.pgc"
 
     printf("connected\n");
 
@@ -731,12 +755,12 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(param_value),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
-	ECPGt_int,&(num_items),(long)1,(long)1,sizeof(int), 
+	ECPGt_long_long,&(num_items),(long)1,(long)1,sizeof(long long), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
-#line 365 "NativeAdapter.pgc"
+#line 370 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 365 "NativeAdapter.pgc"
+#line 370 "NativeAdapter.pgc"
 
     printf("num items: %d\n", num_items);
 
@@ -751,10 +775,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(param_value),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 368 "NativeAdapter.pgc"
+#line 373 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 368 "NativeAdapter.pgc"
+#line 373 "NativeAdapter.pgc"
 
 
     for (int i = 0; i < num_items; i++)
@@ -772,27 +796,27 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(item_refurbisheds[i]),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
-#line 372 "NativeAdapter.pgc"
+#line 377 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 372 "NativeAdapter.pgc"
+#line 377 "NativeAdapter.pgc"
 
     }
 
     printf("items collected\n");
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "close item_curs_with_param", ECPGt_EOIT, ECPGt_EORT);
-#line 377 "NativeAdapter.pgc"
+#line 382 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 377 "NativeAdapter.pgc"
+#line 382 "NativeAdapter.pgc"
 
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 379 "NativeAdapter.pgc"
+#line 384 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 379 "NativeAdapter.pgc"
+#line 384 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
@@ -828,10 +852,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 413 "NativeAdapter.pgc"
+#line 418 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 413 "NativeAdapter.pgc"
+#line 418 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return NULL;
@@ -874,37 +898,37 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 
        
     
-#line 442 "NativeAdapter.pgc"
+#line 447 "NativeAdapter.pgc"
  char database_name [ BUFSIZE ] ;
  
-#line 443 "NativeAdapter.pgc"
+#line 448 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 444 "NativeAdapter.pgc"
+#line 449 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 446 "NativeAdapter.pgc"
+#line 451 "NativeAdapter.pgc"
  long item_id ;
  
-#line 447 "NativeAdapter.pgc"
+#line 452 "NativeAdapter.pgc"
  char item_name [ BUFSIZE ] ;
  
-#line 448 "NativeAdapter.pgc"
+#line 453 "NativeAdapter.pgc"
  long item_amount ;
  
-#line 449 "NativeAdapter.pgc"
+#line 454 "NativeAdapter.pgc"
  int item_price ;
  
-#line 450 "NativeAdapter.pgc"
+#line 455 "NativeAdapter.pgc"
  char item_color [ BUFSIZE ] ;
  
-#line 451 "NativeAdapter.pgc"
+#line 456 "NativeAdapter.pgc"
  bool item_refurbished ;
  
-#line 453 "NativeAdapter.pgc"
+#line 458 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 454 "NativeAdapter.pgc"
+#line 459 "NativeAdapter.pgc"
 
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -924,14 +948,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     item_refurbished = refurbishedNtv;
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 472 "NativeAdapter.pgc"
+#line 477 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 472 "NativeAdapter.pgc"
+#line 477 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 474 "NativeAdapter.pgc"
+#line 479 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select * from insert_into_database ( $1  , $2  , $3  , $4  , $5  , $6  , $7  , $8  , $9  )", 
 	ECPGt_char,(database_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
@@ -952,24 +976,24 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_bool,&(item_refurbished),(long)1,(long)1,sizeof(bool), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 475 "NativeAdapter.pgc"
+#line 480 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 475 "NativeAdapter.pgc"
+#line 480 "NativeAdapter.pgc"
 
     printf("item added\n");
 
     { ECPGtrans(__LINE__, NULL, "commit");
-#line 478 "NativeAdapter.pgc"
+#line 483 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 478 "NativeAdapter.pgc"
+#line 483 "NativeAdapter.pgc"
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 479 "NativeAdapter.pgc"
+#line 484 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 479 "NativeAdapter.pgc"
+#line 484 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
@@ -983,10 +1007,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 491 "NativeAdapter.pgc"
+#line 496 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 491 "NativeAdapter.pgc"
+#line 496 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
@@ -1018,25 +1042,25 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
 
        
     
-#line 513 "NativeAdapter.pgc"
+#line 518 "NativeAdapter.pgc"
  char database_name [ BUFSIZE ] ;
  
-#line 514 "NativeAdapter.pgc"
+#line 519 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 515 "NativeAdapter.pgc"
+#line 520 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 517 "NativeAdapter.pgc"
+#line 522 "NativeAdapter.pgc"
  char param_name [ BUFSIZE ] ;
  
-#line 518 "NativeAdapter.pgc"
+#line 523 "NativeAdapter.pgc"
  char param_value [ BUFSIZE ] ;
  
-#line 520 "NativeAdapter.pgc"
+#line 525 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 521 "NativeAdapter.pgc"
+#line 526 "NativeAdapter.pgc"
 
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -1052,14 +1076,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     param_value[BUFSIZE - 1] = 0;
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 535 "NativeAdapter.pgc"
+#line 540 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 535 "NativeAdapter.pgc"
+#line 540 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 537 "NativeAdapter.pgc"
+#line 542 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select * from delete_from_database_by_param ( $1  , $2  , $3  , $4  , $5  )", 
 	ECPGt_char,(database_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
@@ -1072,23 +1096,23 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(param_value),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 538 "NativeAdapter.pgc"
+#line 543 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 538 "NativeAdapter.pgc"
+#line 543 "NativeAdapter.pgc"
 
 
     { ECPGtrans(__LINE__, NULL, "commit");
-#line 540 "NativeAdapter.pgc"
+#line 545 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 540 "NativeAdapter.pgc"
+#line 545 "NativeAdapter.pgc"
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 541 "NativeAdapter.pgc"
+#line 546 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 541 "NativeAdapter.pgc"
+#line 546 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
@@ -1102,10 +1126,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 553 "NativeAdapter.pgc"
+#line 558 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 553 "NativeAdapter.pgc"
+#line 558 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
@@ -1132,25 +1156,25 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
        
        
     
-#line 572 "NativeAdapter.pgc"
+#line 577 "NativeAdapter.pgc"
  char database_name [ BUFSIZE ] ;
  
-#line 573 "NativeAdapter.pgc"
+#line 578 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 574 "NativeAdapter.pgc"
+#line 579 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 575 "NativeAdapter.pgc"
+#line 580 "NativeAdapter.pgc"
  char username_to_search [ BUFSIZE ] ;
  
-#line 576 "NativeAdapter.pgc"
+#line 581 "NativeAdapter.pgc"
  bool user_found = true ;
  
-#line 577 "NativeAdapter.pgc"
+#line 582 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 578 "NativeAdapter.pgc"
+#line 583 "NativeAdapter.pgc"
 
 
     strncpy(database_name, databaseNtv, BUFSIZE - 1);
@@ -1162,27 +1186,27 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     strncpy(username_to_search, usernameToSearchNtv, BUFSIZE - 1);
     user_name[BUFSIZE - 1] = 0;
 
-    ECPGset_var( 8, &( database_name ), __LINE__);\
- ECPGset_var( 9, &( user_passwd ), __LINE__);\
- ECPGset_var( 10, &( user_name ), __LINE__);\
- ECPGset_var( 11, &( username_to_search ), __LINE__);\
+    ECPGset_var( 11, &( database_name ), __LINE__);\
+ ECPGset_var( 12, &( user_passwd ), __LINE__);\
+ ECPGset_var( 13, &( user_name ), __LINE__);\
+ ECPGset_var( 14, &( username_to_search ), __LINE__);\
  /* declare user_curs cursor for select user_exists from user_exists_by_username ( $1  , $2  , $3  , $4  ) */
-#line 590 "NativeAdapter.pgc"
+#line 595 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;
-#line 590 "NativeAdapter.pgc"
+#line 595 "NativeAdapter.pgc"
 
-#line 590 "NativeAdapter.pgc"
+#line 595 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 592 "NativeAdapter.pgc"
+#line 597 "NativeAdapter.pgc"
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 593 "NativeAdapter.pgc"
+#line 598 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 593 "NativeAdapter.pgc"
+#line 598 "NativeAdapter.pgc"
 
     printf("connected\n");
 
@@ -1195,31 +1219,31 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(database_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 596 "NativeAdapter.pgc"
+#line 601 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 596 "NativeAdapter.pgc"
+#line 601 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "fetch next user_curs", ECPGt_EOIT, 
 	ECPGt_bool,&(user_found),(long)1,(long)1,sizeof(bool), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);
-#line 597 "NativeAdapter.pgc"
+#line 602 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 597 "NativeAdapter.pgc"
+#line 602 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "close user_curs", ECPGt_EOIT, ECPGt_EORT);
-#line 598 "NativeAdapter.pgc"
+#line 603 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 598 "NativeAdapter.pgc"
+#line 603 "NativeAdapter.pgc"
 
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 600 "NativeAdapter.pgc"
+#line 605 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 600 "NativeAdapter.pgc"
+#line 605 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, database, databaseNtv);
@@ -1231,10 +1255,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 610 "NativeAdapter.pgc"
+#line 615 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 610 "NativeAdapter.pgc"
+#line 615 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
@@ -1261,22 +1285,22 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
      
        
     
-#line 630 "NativeAdapter.pgc"
+#line 635 "NativeAdapter.pgc"
  char username_to_save [ BUFSIZE ] ;
  
-#line 631 "NativeAdapter.pgc"
+#line 636 "NativeAdapter.pgc"
  char password_to_save [ BUFSIZE ] ;
  
-#line 632 "NativeAdapter.pgc"
+#line 637 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 633 "NativeAdapter.pgc"
+#line 638 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 634 "NativeAdapter.pgc"
+#line 639 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 635 "NativeAdapter.pgc"
+#line 640 "NativeAdapter.pgc"
 
 
     strncpy(username_to_save, usernameToSaveNtv, BUFSIZE - 1);
@@ -1290,14 +1314,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     user_passwd[BUFSIZE - 1] = 0;
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 647 "NativeAdapter.pgc"
+#line 652 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 647 "NativeAdapter.pgc"
+#line 652 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 649 "NativeAdapter.pgc"
+#line 654 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select * from add_superuser ( $1  , $2  , $3  , $4  )", 
 	ECPGt_char,(username_to_save),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
@@ -1308,23 +1332,23 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(user_passwd),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 650 "NativeAdapter.pgc"
+#line 655 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 650 "NativeAdapter.pgc"
+#line 655 "NativeAdapter.pgc"
 
 
     { ECPGtrans(__LINE__, NULL, "commit");
-#line 652 "NativeAdapter.pgc"
+#line 657 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 652 "NativeAdapter.pgc"
+#line 657 "NativeAdapter.pgc"
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 653 "NativeAdapter.pgc"
+#line 658 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 653 "NativeAdapter.pgc"
+#line 658 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, usernameToSave, usernameToSaveNtv);
@@ -1337,10 +1361,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 664 "NativeAdapter.pgc"
+#line 669 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 664 "NativeAdapter.pgc"
+#line 669 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
@@ -1370,25 +1394,25 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
      
        
     
-#line 686 "NativeAdapter.pgc"
+#line 691 "NativeAdapter.pgc"
  char username_to_save [ BUFSIZE ] ;
  
-#line 687 "NativeAdapter.pgc"
+#line 692 "NativeAdapter.pgc"
  char password_to_save [ BUFSIZE ] ;
  
-#line 688 "NativeAdapter.pgc"
+#line 693 "NativeAdapter.pgc"
  char user_name [ BUFSIZE ] ;
  
-#line 689 "NativeAdapter.pgc"
+#line 694 "NativeAdapter.pgc"
  char user_passwd [ BUFSIZE ] ;
  
-#line 690 "NativeAdapter.pgc"
+#line 695 "NativeAdapter.pgc"
  char database_name [ BUFSIZE ] ;
  
-#line 691 "NativeAdapter.pgc"
+#line 696 "NativeAdapter.pgc"
  char * conn_name = randstring ( 5 ) ;
 /* exec sql end declare section */
-#line 692 "NativeAdapter.pgc"
+#line 697 "NativeAdapter.pgc"
 
 
     strncpy(username_to_save, usernameToSaveNtv, BUFSIZE - 1);
@@ -1404,14 +1428,14 @@ JNIEXPORT jboolean JNICALL Java_com_dreamteam_sqljbaseddb_repositories_NativeAda
     database_name[BUFSIZE - 1] = 0;
 
     { ECPGconnect(__LINE__, 0, "data_management" , user_name , user_passwd , conn_name, 0); 
-#line 706 "NativeAdapter.pgc"
+#line 711 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 706 "NativeAdapter.pgc"
+#line 711 "NativeAdapter.pgc"
 
 
     /* exec sql whenever sqlerror  goto  error_lab ; */
-#line 708 "NativeAdapter.pgc"
+#line 713 "NativeAdapter.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select * from add_casual_to_database ( $1  , $2  , $3  , $4  , $5  )", 
 	ECPGt_char,(username_to_save),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
@@ -1424,23 +1448,23 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(database_name),(long)BUFSIZE,(long)1,(BUFSIZE)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 709 "NativeAdapter.pgc"
+#line 714 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 709 "NativeAdapter.pgc"
+#line 714 "NativeAdapter.pgc"
 
 
     { ECPGtrans(__LINE__, NULL, "commit");
-#line 711 "NativeAdapter.pgc"
+#line 716 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 711 "NativeAdapter.pgc"
+#line 716 "NativeAdapter.pgc"
 
     { ECPGdisconnect(__LINE__, conn_name);
-#line 712 "NativeAdapter.pgc"
+#line 717 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 712 "NativeAdapter.pgc"
+#line 717 "NativeAdapter.pgc"
 
 
     (*env)->ReleaseStringUTFChars(env, usernameToSave, usernameToSaveNtv);
@@ -1454,10 +1478,10 @@ if (sqlca.sqlcode < 0) goto error_lab;}
 
   error_lab:
     { ECPGdisconnect(__LINE__, conn_name);
-#line 724 "NativeAdapter.pgc"
+#line 729 "NativeAdapter.pgc"
 
 if (sqlca.sqlcode < 0) goto error_lab;}
-#line 724 "NativeAdapter.pgc"
+#line 729 "NativeAdapter.pgc"
 
     printf("sqlcode=%d %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
     return false;
